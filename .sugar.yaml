@@ -1,0 +1,19 @@
+version: 1.0.0
+compose-app: docker-compose
+env-file: .env
+defaults:
+  group: {{ env.ENV }}
+
+groups:
+  dev:
+    project-name: literev-legal
+    compose-path:
+      - containers/compose-base.yaml
+    env-file: .env
+    services:
+      default: web,db,redis,
+      available:
+        - name: db
+        - name: web
+        - name: redis
+        - name: celeryworker

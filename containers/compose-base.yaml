@@ -1,0 +1,45 @@
+version: '3.8'
+services:
+  db:
+    image: postgres:13
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: mydatabase
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: mypassword
+
+  redis:
+    container_name: redis
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+
+  web:
+    container_name: web
+    build:
+      context: ".."
+      dockerfile: "containers/Dockerfile-web"
+    command: python /opt/services/project_core/manage.py runserver 0.0.0.0:8000
+    volumes:
+      - ../project_core:/opt/services/project_core
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+      - redis
+    environment:
+      - DEBUG=1
+
+  celeryworker:
+    build: .
+    command: celery -A myproject worker --loglevel=info
+    volumes:
+      - ../project_core:/opt/services/project_core
+    depends_on:
+      - web
+      - redis
+
+
+volumes:
+  postgres_data:

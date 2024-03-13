@@ -1,0 +1,16 @@
+FROM python:3.8
+ENV PYTHONUNBUFFERED 1
+
+RUN apt-get update && apt-get install -y redis-tools net-tools build-essential netcat-traditional
+
+WORKDIR /opt/
+
+COPY requirements.txt ./
+
+COPY venv-literev /opt/venv-literev
+
+COPY containers/scripts /opt/scripts
+
+RUN bash /opt/scripts/install-deps.sh
+
+WORKDIR /opt/services/projecls
